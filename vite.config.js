@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  base: '/prajjwol-career-adventure/', // Replace with your repo name
+  base: '/prajjwol-career-adventure/', // GitHub Pages repo name
   plugins: [react()],
-  server: {
-    port: 3000,
-  },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html')
+      }
+    }
   },
+  server: {
+    port: 3000
+  }
 });
