@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prajjwol's Mario Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-blue: #5c94fc;
+            --brick-brown: #a44526;
+            --grout-white: #f0f0f0;
+            --accent-yellow: #fcd000;
+            --text-white: white;
+            --text-dark: #333;
+        }
+
+        /* Global Styles & Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Hide main body scrollbar, managed by inner container */
+            font-family: 'VT323', monospace;
+            color: var(--text-white);
+            background-color: var(--sky-blue);
+            font-size: 18px; /* Base font size */
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--text-white);
+            text-shadow: 2px 2px 0px var(--text-dark);
+        }
+
+        a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+            display: inline-block; /* For transform */
+        }
+
+        a:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Keyframe Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* Game Viewport & Parallax */
+        #game-viewport {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .parallax-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            will-change: transform; /* Optimize for animation */
+        }
+
+        /* Layer 1: Clouds (CSS pixel art) */
+        .layer-1 {
+            z-index: 1;
+        }
+        .cloud {
+            position: absolute;
+            background: var(--text-white);
+            width: 20px; height: 20px;
+            box-shadow:
+                20px 0 var(--text-white), 40px 0 var(--text-white), 60px 0 var(--text-white),
+                10px -10px var(--text-white), 30px -10px var(--text-white), 50px -10px var(--text-white), 70px -10px var(--text-white),
+                0 -20px var(--text-white), 20px -20px var(--text-white), 40px -20px var(--text-white), 60px -20px var(--text-white), 80px -20px var(--text-white);
+        }
+        .cloud-1 { top: 15%; left: 10%; transform: scale(1.2); }
+        .cloud-2 { top: 25%; left: 45%; transform: scale(0.9); }
+        .cloud-3 { top: 18%; left: 80%; transform: scale(1.1); }
+        .cloud-4 { top: 30%; left: 100%; transform: scale(0.8); } /* Off-screen to scroll in */
+        .cloud-5 { top: 10%; left: 130%; transform: scale(1.3); }
+
+        /* Layer 2: Ground Line (Simple CSS) */
+        .layer-2 {
+            z-index: 2;
+            height: 20%; /* Ground height */
+            bottom: 0;
+            top: auto;
+            background-color: #8B4513; /* Earthy brown */
+            border-top: 10px solid #4CAF50; /* Green grass top */
+        }
+
+        /* Mario World Container (Horizontal Scroll) */
+        #mario-world-container {
+            position: relative;
+            z-index: 3;
+            height: 100%;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            white-space: nowrap; /* Keep sections in a single line */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        /* Individual Mario Section (Levels) */
+        .mario-section {
+            display: inline-block;
+            vertical-align: top; /* Align to top for inline-block */
+            width: 100vw; /* Each section takes full viewport width */
+            height: 100%;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            background-color: var(--brick-brown); /* Brick color */
+            background-image:
+                repeating-linear-gradient(0deg, var(--grout-white), var(--grout-white) 2px, transparent 2px, transparent 25px), /* Horizontal grout */
+                repeating-linear-gradient(90deg, var(--grout-white), var(--grout-white) 2px, transparent 2px, transparent 50px); /* Vertical grout */
+            background-size: 50px 25px; /* Width and height of one brick */
+            background-position: 0 0, 25px 0; /* Offset vertical lines for staggered brick effect */
+            white-space: normal; /* Allow content to wrap within section */
+            overflow-y: auto; /* Allow vertical scroll within sections if content is long */
+            padding-bottom: 80px; /* Space above ground layer */
+        }
+
+        .mario-section::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for sections */
+        }
+
+        /* Content Blocks within sections */
+        .mario-content-block {
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background for readability */
+            border: 4px solid var(--text-dark);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
+        }
+
+        /* Header / Question Mark Block Styles */
+        .question-block {
+            background-color: var(--accent-yellow);
+            color: var(--brick-brown);
+            padding: 15px 25px;
+            display: inline-block;
+            border: 4px solid var(--brick-brown);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            top: 0;
+            animation: float 1s infinite alternate ease-in-out;
+            cursor: default; /* Not interactive, just for style */
+            font-size: 1.5em;
+            line-height: 1.2;
+        }
+        .question-block:hover {
+            transform: translateY(-5px); /* Subtle jump on hover */
+        }
+
+        /* Intro Section Specifics */
+        .intro-section .mario-content-block {
+            margin-top: 10%;
+            text-align: center;
+        }
+        .intro-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block; /* Override inline-block for H1 */
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .mario-text-title {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .mario-text-summary {
+            font-size: 1.1em;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px 30px;
+            font-size: 1.1em;
+        }
+        .contact-info .mario-link, .contact-info .mario-text {
+            color: var(--text-white);
+            background-color: var(--brick-brown);
+            padding: 8px 15px;
+            border: 2px solid var(--accent-yellow);
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.4);
+            white-space: nowrap; /* Prevent breaking links */
+        }
+
+        /* Experience Section */
+        #experience {
+            text-align: center;
+        }
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .job-entry {
+            text-align: left;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .job-entry h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: var(--accent-yellow);
+        }
+        .job-entry .role {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .job-entry .period {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: var(--grout-white);
+        }
+        .job-entry ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .job-entry li {
+            position: relative;
+            padding-left: 30px; /* Space for coin */
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 1em;
+        }
+        .coin-icon {
+            display: inline-block;
+            width: 18px; /* Size of the coin */
+            height: 18px;
+            background-color: var(--accent-yellow);
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 2px; /* Adjust vertical alignment */
+            animation: spin 1s infinite linear;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+            border: 2px solid var(--text-dark);
+            cursor: default;
+        }
+        .coin-icon::after {
+            content: '$'; /* Simple text for coin */
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: var(--brick-brown);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 1; /* For better vertical alignment */
+        }
+
+        /* Skills Section */
+        #skills {
+            text-align: center;
+        }
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .skill-tag {
+            background-color: var(--accent-yellow);
+            color: var(--brick-brown);
+            padding: 10px 20px;
+            border: 3px solid var(--brick-brown);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9em;
+            display: inline-block;
+            transition: transform 0.1s ease-out;
+            cursor: default;
+        }
+        .skill-tag:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Education Section */
+        #education {
+            text-align: center;
+        }
+        .education-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .education-entry {
+            text-align: left;
+            padding: 25px;
+        }
+        .education-entry h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: var(--accent-yellow);
+        }
+        .education-entry .institution {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .education-entry .period {
+            font-size: 0.9em;
+            color: var(--grout-white);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            text-align: center;
+        }
+        .contact-section .mario-content-block {
+            margin-top: 10%;
+        }
+        .contact-section .mario-text {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .contact-section .contact-info {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .contact-section .contact-info .mario-link,
+        .contact-section .contact-info .mario-text {
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 16px;
+            }
+            .mario-section {
+                padding: 30px 15px;
+            }
+            .question-block {
+                font-size: 1.2em;
+                padding: 10px 15px;
+            }
+            .intro-section h1 {
+                font-size: 1.8em;
+            }
+            .mario-text-title {
+                font-size: 1em;
+            }
+            .mario-text-summary {
+                font-size: 0.9em;
+            }
+            .contact-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .contact-info .mario-link, .contact-info .mario-text {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+            .experience-grid {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+            .job-entry {
+                padding: 15px;
+            }
+            .job-entry li {
+                font-size: 0.9em;
+            }
+            .skills-grid {
+                gap: 10px;
+            }
+            .skill-tag {
+                padding: 8px 15px;
+                font-size: 0.8em;
+            }
+            .education-entry {
+                padding: 15px;
+            }
+            .education-entry h3 {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .intro-section h1 {
+                font-size: 1.5em;
+            }
+            .question-block {
+                font-size: 1em;
+                padding: 8px 12px;
+            }
+            .contact-section .mario-content-block {
+                margin-top: 5%;
+            }
+            .coin-icon {
+                width: 16px;
+                height: 16px;
+            }
+            .coin-icon::after {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-viewport">
+        <!-- Parallax Background Elements -->
+        <div class="parallax-layer layer-1">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+            <div class="cloud cloud-4"></div>
+            <div class="cloud cloud-5"></div>
+        </div>
+        <div class="parallax-layer layer-2"></div>
+
+        <div id="mario-world-container">
+            <!-- Intro Section (Home Castle) -->
+            <section id="intro" class="mario-section intro-section">
+                <div class="mario-content-block">
+                    <h1 class="question-block" id="name"></h1>
+                    <p class="mario-text-title" id="title"></p>
+                    <p class="mario-text-summary" id="summary"></p>
+                    <div class="contact-info" id="intro-contact">
+                        <!-- Contact links will be dynamically inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Experience Section -->
+            <section id="experience" class="mario-section">
+                <h2 class="question-block">Experience</h2>
+                <div class="experience-grid" id="experience-grid">
+                    <!-- Experience items will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills" class="mario-section">
+                <h2 class="question-block">Skills</h2>
+                <div class="skills-grid" id="skills-grid">
+                    <!-- Skills will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Education Section -->
+            <section id="education" class="mario-section">
+                <h2 class="question-block">Education</h2>
+                <div class="education-grid" id="education-grid">
+                    <!-- Education will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Contact Section (End of Level) -->
+            <section id="contact" class="mario-section contact-section">
+                <h2 class="question-block">Let's Connect!</h2>
+                <div class="mario-content-block">
+                    <p class="mario-text">Ready to level up your team?</p>
+                    <p class="mario-text">I'm always open to new adventures!</p>
+                    <div class="contact-info" id="final-contact">
+                        <!-- Contact links will be dynamically inserted here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const resumeData = {
+            "education": [
+                {
+                    "degree": "Bachelor's Degree",
+                    "institution": "Kathmandu University (KU), Nepal",
+                    "period": "2014-2018"
+                }
+            ],
+            "experience": [
+                {
+                    "company": "NAO Co-investment GmbH, Berlin",
+                    "period": "06/2025 - current",
+                    "responsibilities": [
+                        "Responsible for performance marketing and built an automated UTM protocol tool that filters and sorts all URLs and tallies them with leads without UTM attributes, giving proper information about the source of the lead."
+                    ],
+                    "role": "Senior Growth Manager"
+                },
+                {
+                    "company": "",
+                    "period": "10/2024–05/2025",
+                    "responsibilities": [],
+                    "role": "Parental break"
+                },
+                {
+                    "company": "Tribe Growth GmbH, Berlin",
+                    "period": "07/2024 - 09/2024",
+                    "responsibilities": [
+                        "Built a reverse recruiting system, launched 5 GTM products."
+                    ],
+                    "role": "Growth & Operations Manager"
+                },
+                {
+                    "company": "Recrunova LLC, Texas (Remote)",
+                    "period": "10/2023 – 06/2024",
+                    "responsibilities": [
+                        "Built entire website from scratch, drove 50K+ monthly visitors, and generated 50+ monthly leads organically."
+                    ],
+                    "role": "Sr. Marketing Specialist"
+                },
+                {
+                    "company": "Pocket Studio, Nepal",
+                    "period": "07/2021 – 02/2023",
+                    "responsibilities": [
+                        "Organized over 12 different conferences and events for C-level executives, saved $6M+ and optimized €100K+ monthly ad budget."
+                    ],
+                    "role": "Performance Marketing Manager"
+                },
+                {
+                    "company": "88 Collective, Nepal",
+                    "period": "06/2019 – 11/2020",
+                    "responsibilities": [
+                        "Organized stalls for over 70 expos in India and Nepal, managed €100K+ in paid ads, and improved visibility through SEO."
+                    ],
+                    "role": "HoD, Consultation"
+                },
+                {
+                    "company": "VMAG, Nepal",
+                    "period": "08/2018 – 06/2019",
+                    "responsibilities": [
+                        "Directed and produced Nepal's most-watched comedy show, boosting brand awareness significantly."
+                    ],
+                    "role": "Assistant Marketing Manager"
+                },
+                {
+                    "company": "Urban Girl, Nepal",
+                    "period": "04/2017 – 05/2018",
+                    "responsibilities": [
+                        "Scaled e-commerce sales by 16X, added $600K+ annual revenue through distribution expansion, implemented CRM marketing system."
+                    ],
+                    "role": "Business Development Manager"
+                },
+                {
+                    "company": "EBCG, Slovakia",
+                    "period": "02/2016 – 04/2017",
+                    "responsibilities": [
+                        "Closed conference and event partnerships with C-level executives across Europe and US, enhancing onboarding success."
+                    ],
+                    "role": "Event Onboarding Manager"
+                },
+                {
+                    "company": "Nepal Share, Nepal",
+                    "period": "04/2015 – 10/2015",
+                    "responsibilities": [
+                        "Led the reconstruction of houses in Remote Nepal after 2015 earthquake"
+                    ],
+                    "role": "Assistant Program Coordinator"
+                },
+                {
+                    "company": "Rasuna Engineering, Nepal",
+                    "period": "03/2010 – 04/2015",
+                    "responsibilities": [
+                        "Delivered successful BTL marketing campaigns and assisted in closing five large infrastructure contracts."
+                    ],
+                    "role": "Marketing Executive"
+                }
+            ],
+            "name": "Prajjwol Bhattarai (Prajj)",
+            "skills": [
+                "Google Ads",
+                "Meta Ads",
+                "LinkedIn Ads",
+                "Programmatic Advertising",
+                "CAC optimization",
+                "ROAS-focused strategy",
+                "Make (Integromat)",
+                "HubSpot",
+                "Zoho CRM",
+                "Webhooks",
+                "Automated Workflows",
+                "Custom AI tools for campaign execution",
+                "UTM Tracking",
+                "Scraping",
+                "Creative Generation",
+                "GA4",
+                "Zoho Analytics",
+                "Tableau",
+                "A/B Testing",
+                "Multivariate Analysis",
+                "Adobe Creative Suite (Photoshop)",
+                "Adobe Illustrator",
+                "Adobe Premiere Pro",
+                "Canva",
+                "Figma",
+                "Media Production",
+                "English",
+                "Hindi",
+                "Nepali",
+                "Urdu",
+                "Basic German"
+            ],
+            "summary": "Marketing automation & performance marketing expert with 14+ years of experience leading growth across fintech, e-commerce, and recruitment. I specialize in customer-focused marketing workflows and data analytics. Managed €100K+ ad spends, dropped CPL by 70%, launched market-disrupting platforms, and scaled businesses from scratch.",
+            "title": "Marketing Specialist | Driving Growth & Performance",
+            "contact": {
+                "email": "prajjwolbhattarai@gmail.com",
+                "linkedin": "linkedin.com/in/prajjwolbhattarai",
+                "phone": "+4917629858945",
+                "website": "http://prajjwolbhattarai.com.np"
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate Intro Section
+            document.getElementById('name').textContent = resumeData.name;
+            document.getElementById('title').textContent = resumeData.title;
+            document.getElementById('summary').textContent = resumeData.summary;
+
+            const populateContactInfo = (targetElement, contactData) => {
+                targetElement.innerHTML = ''; // Clear existing content
+                if (contactData.email) {
+                    targetElement.innerHTML += `<a href="mailto:${contactData.email}" class="mario-link">${contactData.email}</a>`;
+                }
+                if (contactData.linkedin) {
+                    targetElement.innerHTML += `<a href="https://${contactData.linkedin}" target="_blank" class="mario-link">${contactData.linkedin}</a>`;
+                }
+                if (contactData.website) {
+                    targetElement.innerHTML += `<a href="${contactData.website}" target="_blank" class="mario-link">${contactData.website}</a>`;
+                }
+                if (contactData.phone) {
+                    targetElement.innerHTML += `<span class="mario-text">${contactData.phone}</span>`;
+                }
+            };
+
+            populateContactInfo(document.getElementById('intro-contact'), resumeData.contact);
+            populateContactInfo(document.getElementById('final-contact'), resumeData.contact);
+
+            // Populate Experience Section
+            const experienceGrid = document.getElementById('experience-grid');
+            resumeData.experience.forEach(job => {
+                const jobBlock = document.createElement('div');
+                jobBlock.classList.add('mario-content-block', 'job-entry');
+
+                jobBlock.innerHTML = `
+                    <h3>${job.company || 'Career Break'}</h3>
+                    <p class="role">${job.role}</p>
+                    <p class="period">${job.period}</p>
+                    ${job.responsibilities && job.responsibilities.length > 0 ? '<ul>' + job.responsibilities.map(resp => `<li><span class="coin-icon"></span>${resp}</li>`).join('') + '</ul>' : '<p class="mario-text">Taking a well-deserved break!</p>'}
+                `;
+                experienceGrid.appendChild(jobBlock);
+            });
+
+            // Populate Skills Section
+            const skillsGrid = document.getElementById('skills-grid');
+            resumeData.skills.forEach(skill => {
+                const skillTag = document.createElement('span');
+                skillTag.classList.add('skill-tag');
+                skillTag.textContent = skill;
+                skillsGrid.appendChild(skillTag);
+            });
+
+            // Populate Education Section
+            const educationGrid = document.getElementById('education-grid');
+            resumeData.education.forEach(edu => {
+                const educationEntry = document.createElement('div');
+                educationEntry.classList.add('mario-content-block', 'education-entry');
+                educationEntry.innerHTML = `
+                    <h3>${edu.degree}</h3>
+                    <p class="institution">${edu.institution}</p>
+                    <p class="period">${edu.period}</p>
+                `;
+                educationGrid.appendChild(educationEntry);
+            });
+
+            // Parallax Effect
+            const marioWorldContainer = document.getElementById('mario-world-container');
+            const layer1 = document.querySelector('.layer-1'); // Clouds
+            const layer2 = document.querySelector('.layer-2'); // Ground
+
+            marioWorldContainer.addEventListener('scroll', () => {
+                const scrollPos = marioWorldContainer.scrollLeft;
+                layer1.style.transform = `translateX(-${scrollPos * 0.1}px)`; // Slower for clouds
+                layer2.style.transform = `translateX(-${scrollPos * 0.3}px)`; // Faster for ground
+            });
+        });
+    </script>
+</body>
+</html>
