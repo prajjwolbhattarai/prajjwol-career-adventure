@@ -8,29 +8,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-      body {
-        font-family: 'Inter', sans-serif;
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
     </style>
     <!-- Babel for in-browser JSX/TS transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- React Import Map -->
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@^18.2.0/client",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/"
-  }
-}
-</script>
+        {
+          "imports": {
+            "react": "https://esm.sh/react@^18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@^18.2.0/client",
+            "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+            "react/": "https://esm.sh/react@^19.1.0/"
+          }
+        }
+    </script>
 </head>
 <body class="bg-gray-900 text-gray-200">
     <div id="root"></div>
 
-    <!-- 
+    <!--
       Main Application Script
       All React components and logic are contained within this single script tag.
       Babel transpiles this code in the browser.
@@ -83,20 +84,63 @@
             </svg>
         );
 
-        // Resume Data
-        const RESUME_DATA = [
-          { id: 'react', title: 'React & TypeScript', category: 'Skill', description: 'Expert in building scalable, type-safe, and performant web applications using React and TypeScript. Proficient with hooks, context API, and modern state management.', icon: <ReactIcon />, },
-          { id: 'nodejs', title: 'Node.js & Backend', category: 'Skill', description: 'Skilled in developing robust and efficient backend services with Node.js and Express. Experienced in creating RESTful APIs and integrating with databases.', icon: <NodeIcon />, },
-          { id: 'cloud', title: 'Cloud & DevOps', category: 'Skill', description: 'Familiar with deploying and managing applications on cloud platforms like AWS and Google Cloud. Experience with serverless architecture and CI/CD pipelines.', icon: <CloudIcon />, },
-          { id: 'project-x', title: 'Project: AI-Powered Platform', category: 'Project', description: 'Led the frontend development of an AI-powered data analytics platform. Built a dynamic dashboard with React, D3.js, and Tailwind CSS for real-time visualization.', link: 'https://github.com/example/project-x', icon: <ProjectIcon />, },
-          { id: 'project-y', title: 'Project: E-Commerce Site', category: 'Project', description: 'Developed a full-stack e-commerce solution using a MERN stack. Implemented features like product search, shopping cart, and a secure checkout process with Stripe.', link: 'https://github.com/example/project-y', icon: <ProjectIcon />, },
-          { id: 'senior-engineer', title: 'Senior Frontend Engineer at TechCorp', category: 'Experience', description: '2020 - Present. Responsible for architecting and building user interfaces for flagship products, mentoring junior developers, and improving code quality and performance across the team.', icon: <ExperienceIcon />, },
-          { id: 'mid-level-engineer', title: 'Software Engineer at Innovate LLC', category: 'Experience', description: '2017 - 2020. Worked on a variety of client projects, developing custom web applications and mobile-first websites. Gained extensive experience in agile methodologies.', icon: <ExperienceIcon />, },
-        ];
+       // Resume Data
+const RESUME_DATA = [
+  // 💼 Experience (Orange)
+  { id: 'exp-nao', title: 'Senior Growth Manager at NAO Co-investment GmbH', category: 'Experience', description: '2025 – Present. Leads performance marketing and built an automated UTM tool for lead attribution.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-tribe', title: 'Growth & Operations Manager at Tribe Growth GmbH', category: 'Experience', description: '2024. Developed a reverse recruiting system and launched 5 GTM products.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-recrunova', title: 'Senior Marketing Specialist at Recrunova LLC', category: 'Experience', description: '2023 – 2024. Built website from scratch, drove 50K+ monthly visitors, and generated 50+ monthly leads organically.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-pocket', title: 'Performance Marketing Manager at Pocket Studio', category: 'Experience', description: '2021 – 2023. Managed €100K+ monthly ad spend and organized 12+ high-level conferences.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-88collective', title: 'HoD, Consultation at 88 Collective', category: 'Experience', description: '2019 – 2020. Managed €100K+ in paid ads, organized 70+ expos across India and Nepal.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-vmag', title: 'Assistant Marketing Manager at VMAG', category: 'Experience', description: '2018 – 2019. Directed Nepal’s most-watched comedy show, boosting brand awareness significantly.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-urbangirl', title: 'Business Development Manager at Urban Girl', category: 'Experience', description: '2017 – 2018. Scaled e-commerce sales by 16X, added $600K+ annual revenue.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-ebcg', title: 'Event Onboarding Manager at EBCG', category: 'Experience', description: '2016 – 2017. Closed partnerships with C-level executives across Europe and US.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-nepalshare', title: 'Assistant Program Coordinator at Nepal Share', category: 'Experience', description: '2015 – 2015. Led reconstruction of houses in remote Nepal after 2015 earthquake.', icon: <ExperienceIcon />, color: 'orange' },
+  { id: 'exp-rasuna', title: 'Marketing Executive at Rasuna Engineering', category: 'Experience', description: '2010 – 2015. Delivered successful BTL campaigns and closed large infrastructure contracts.', icon: <ExperienceIcon />, color: 'orange' },
+
+  // 🚀 Achievements (Green)
+  { id: 'ach-utm-tool', title: 'Automated UTM Protocol Tool', category: 'Achievement', description: 'Built a system to track lead sources and clean UTM attributes.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-16x-growth', title: 'Scaled E-commerce Sales 16X', category: 'Achievement', description: 'Achieved 16X monthly recurring revenue growth at Urban Girl.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-saas', title: 'Decentralized SaaS Transformation', category: 'Achievement', description: 'Transformed SaaS to decentralized model, saving $6M+.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-capi', title: 'Implemented CAPI and Pixel Tracking', category: 'Achievement', description: 'Executed server-side tracking and custom webhooks for campaigns.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-job-ranking', title: 'Job Ranking Automation', category: 'Achievement', description: 'Analyzed 150K+ job descriptions and generated infinite ad creatives.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-conferences', title: 'Organized 12+ Conferences', category: 'Achievement', description: 'Planned and executed high-level events for C-level executives.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-50k-visitors', title: '50K+ Monthly Visitors', category: 'Achievement', description: 'Drove 50K+ monthly organic visitors at Recrunova LLC.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-6m-savings', title: 'Saved $6M+ in SaaS Costs', category: 'Achievement', description: 'Optimized cloud infrastructure leading to multi-million savings.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-reverse-recruit', title: 'Reverse Recruiting System', category: 'Achievement', description: 'Designed and launched a system for efficient reverse recruiting.', icon: <ProjectIcon />, color: 'green' },
+  { id: 'ach-scaled-ads', title: 'Scaled €100K+ Ad Budgets', category: 'Achievement', description: 'Managed large-scale multi-platform ad campaigns effectively.', icon: <ProjectIcon />, color: 'green' },
+
+  // 🛠️ Skills (Blue)
+  { id: 'skill-google-ads', title: 'Google Ads', category: 'Skill', description: 'Expert in managing high-budget performance campaigns.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-meta-ads', title: 'Meta Ads', category: 'Skill', description: 'Proficient in managing Facebook & Instagram Ads for scale.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-linkedin-ads', title: 'LinkedIn Ads', category: 'Skill', description: 'Experienced in B2B lead generation and retargeting.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-programmatic', title: 'Programmatic Advertising', category: 'Skill', description: 'Familiar with SA360 and advanced programmatic strategies.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-automation', title: 'Marketing Automation', category: 'Skill', description: 'Make (Integromat), HubSpot, Zoho CRM, and custom workflows.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-data-analytics', title: 'Data Analytics', category: 'Skill', description: 'GA4, Tableau, Zoho Analytics for actionable insights.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-ab-testing', title: 'A/B Testing & CRO', category: 'Skill', description: 'Hands-on with multivariate testing and conversion optimization.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-creative-tools', title: 'Creative Tools', category: 'Skill', description: 'Adobe Suite, Figma, Canva for design and video production.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-seo', title: 'SEO & SEM', category: 'Skill', description: 'Semrush, keyword research, and organic traffic growth.', icon: <ReactIcon />, color: 'blue' },
+  { id: 'skill-email', title: 'Email Marketing', category: 'Skill', description: 'Mailchimp and HubSpot drip campaigns and automation.', icon: <ReactIcon />, color: 'blue' },
+
+  // 🎓 Education (Purple)
+  { id: 'edu-ku', title: 'Bachelor’s in Development Studies', category: 'Education', description: 'Kathmandu University, Nepal (2014 – 2018)', icon: <CloudIcon />, color: 'purple' },
+
+  // 🌐 Languages (Yellow)
+  { id: 'lang-english', title: 'English', category: 'Language', description: 'Native proficiency', icon: <NodeIcon />, color: 'yellow' },
+  { id: 'lang-nepali', title: 'Nepali', category: 'Language', description: 'Native proficiency', icon: <NodeIcon />, color: 'yellow' },
+  { id: 'lang-hindi', title: 'Hindi', category: 'Language', description: 'Professional proficiency', icon: <NodeIcon />, color: 'yellow' },
+  { id: 'lang-german', title: 'German', category: 'Language', description: 'Basic proficiency (A1)', icon: <NodeIcon />, color: 'yellow' },
+
+  // 📜 Certifications (Teal)
+  { id: 'cert-google', title: 'Google Digital Marketing & E-commerce', category: 'Certification', description: 'Certified by Google.', icon: <NodeIcon />, color: 'teal' },
+  { id: 'cert-hubspot', title: 'HubSpot Digital Marketing', category: 'Certification', description: 'Certified by HubSpot Academy.', icon: <NodeIcon />, color: 'teal' },
+  { id: 'cert-email', title: 'HubSpot Email Marketing', category: 'Certification', description: 'Certified by HubSpot Academy.', icon: <NodeIcon />, color: 'teal' },
+];
+
         // --- END OF CONSTANTS ---
 
         // --- START OF COMPONENTS ---
-        
+
         // Header.tsx
         const Header = ({ score, onPauseClick, isPaused }) => {
             const PauseIcon = () => (
@@ -134,7 +178,7 @@
         // GameControls.tsx
         const GameControls = ({ onDirectionChange }) => {
             const ControlButton = ({ onClick, children, className = '' }) => (
-                <button 
+                <button
                     onClick={onClick}
                     className={`bg-gray-700 hover:bg-cyan-500/80 active:bg-cyan-500 rounded-lg w-16 h-16 flex items-center justify-center text-white font-bold text-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 ${className}`}
                 >
@@ -173,7 +217,7 @@
             <div className="absolute inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-20 text-center p-4">
               <h2 className="text-5xl font-bold text-red-500 mb-2">Game Over</h2>
               <p className="text-xl text-gray-300 mb-6">You discovered <span className="text-cyan-400 font-bold">{score}</span> of my skills!</p>
-              
+
               <div className="flex flex-col w-full max-w-xs gap-4">
                 <button
                   onClick={onRestart}
@@ -208,13 +252,13 @@
             </div>
           );
         };
-        
+
         // PauseScreen.tsx
         const PauseScreen = ({ onResume, onRestart }) => {
           return (
             <div className="absolute inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-20 text-center p-4">
               <h2 className="text-5xl font-bold text-yellow-400 mb-6">Paused</h2>
-              
+
               <div className="flex flex-col w-full max-w-xs gap-4">
                 <button
                   onClick={onResume}
@@ -254,7 +298,7 @@
             </div>
           );
         };
-        
+
         // ResumeModal.tsx
         const ResumeModal = ({ item, onClose }) => {
           const categoryColor = () => {
@@ -278,13 +322,13 @@
                   </span>
                 </div>
                 <p className="text-gray-300 mb-6">{item.description}</p>
-                
+
                 <div className="flex justify-between items-center">
                     {item.link ? (
-                        <a 
-                            href={item.link} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                        <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-cyan-400 hover:text-cyan-300 transition-colors duration-200 font-semibold"
                         >
                             View Project &rarr;
@@ -319,8 +363,8 @@
           const gridCells = Array.from({ length: gridSize * gridSize });
 
           return (
-            <div 
-              className="grid bg-black/30 backdrop-blur-sm border border-cyan-500/30 rounded-lg overflow-hidden" 
+            <div
+              className="grid bg-black/30 backdrop-blur-sm border border-cyan-500/30 rounded-lg overflow-hidden"
               style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
             >
               {gridCells.map((_, index) => (
@@ -390,10 +434,10 @@
               const y = Math.floor(Math.random() * GRID_SIZE);
               const isOccupied = currentSnake.some(segment => segment.x === x && segment.y === y);
               if (!isOccupied) {
-                const availableItems = RESUME_DATA.filter(item => 
+                const availableItems = RESUME_DATA.filter(item =>
                   !currentSnake.some(segment => segment.resumeItemId === item.id)
                 );
-                const resumeItem = availableItems.length > 0 
+                const resumeItem = availableItems.length > 0
                   ? availableItems[Math.floor(Math.random() * availableItems.length)]
                   : RESUME_DATA[Math.floor(Math.random() * RESUME_DATA.length)];
                 return { x, y, resumeItem };
@@ -411,7 +455,7 @@
             setScore(0);
             setPaused(false);
           }, []);
-          
+
           const togglePause = () => {
             if (isGameOver) return;
             setPaused(prev => !prev);
