@@ -1,717 +1,534 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prajjwol's Mario Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Snake Game</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <style>
-        :root {
-            --sky-blue: #5c94fc;
-            --brick-brown: #a44526;
-            --grout-white: #f0f0f0;
-            --accent-yellow: #fcd000;
-            --text-white: white;
-            --text-dark: #333;
-        }
-
-        /* Global Styles & Reset */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden; /* Hide main body scrollbar, managed by inner container */
-            font-family: 'VT323', monospace;
-            color: var(--text-white);
-            background-color: var(--sky-blue);
-            font-size: 18px; /* Base font size */
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--text-white);
-            text-shadow: 2px 2px 0px var(--text-dark);
-        }
-
-        a {
-            color: var(--accent-yellow);
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.1s ease-out;
-            display: inline-block; /* For transform */
-        }
-
-        a:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Keyframe Animations */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes spin {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
-
-        /* Game Viewport & Parallax */
-        #game-viewport {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .parallax-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            will-change: transform; /* Optimize for animation */
-        }
-
-        /* Layer 1: Clouds (CSS pixel art) */
-        .layer-1 {
-            z-index: 1;
-        }
-        .cloud {
-            position: absolute;
-            background: var(--text-white);
-            width: 20px; height: 20px;
-            box-shadow:
-                20px 0 var(--text-white), 40px 0 var(--text-white), 60px 0 var(--text-white),
-                10px -10px var(--text-white), 30px -10px var(--text-white), 50px -10px var(--text-white), 70px -10px var(--text-white),
-                0 -20px var(--text-white), 20px -20px var(--text-white), 40px -20px var(--text-white), 60px -20px var(--text-white), 80px -20px var(--text-white);
-        }
-        .cloud-1 { top: 15%; left: 10%; transform: scale(1.2); }
-        .cloud-2 { top: 25%; left: 45%; transform: scale(0.9); }
-        .cloud-3 { top: 18%; left: 80%; transform: scale(1.1); }
-        .cloud-4 { top: 30%; left: 100%; transform: scale(0.8); } /* Off-screen to scroll in */
-        .cloud-5 { top: 10%; left: 130%; transform: scale(1.3); }
-
-        /* Layer 2: Ground Line (Simple CSS) */
-        .layer-2 {
-            z-index: 2;
-            height: 20%; /* Ground height */
-            bottom: 0;
-            top: auto;
-            background-color: #8B4513; /* Earthy brown */
-            border-top: 10px solid #4CAF50; /* Green grass top */
-        }
-
-        /* Mario World Container (Horizontal Scroll) */
-        #mario-world-container {
-            position: relative;
-            z-index: 3;
-            height: 100%;
-            overflow-x: scroll;
-            overflow-y: hidden;
-            white-space: nowrap; /* Keep sections in a single line */
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-
-        /* Individual Mario Section (Levels) */
-        .mario-section {
-            display: inline-block;
-            vertical-align: top; /* Align to top for inline-block */
-            width: 100vw; /* Each section takes full viewport width */
-            height: 100%;
-            padding: 40px 20px;
-            box-sizing: border-box;
-            background-color: var(--brick-brown); /* Brick color */
-            background-image:
-                repeating-linear-gradient(0deg, var(--grout-white), var(--grout-white) 2px, transparent 2px, transparent 25px), /* Horizontal grout */
-                repeating-linear-gradient(90deg, var(--grout-white), var(--grout-white) 2px, transparent 2px, transparent 50px); /* Vertical grout */
-            background-size: 50px 25px; /* Width and height of one brick */
-            background-position: 0 0, 25px 0; /* Offset vertical lines for staggered brick effect */
-            white-space: normal; /* Allow content to wrap within section */
-            overflow-y: auto; /* Allow vertical scroll within sections if content is long */
-            padding-bottom: 80px; /* Space above ground layer */
-        }
-
-        .mario-section::-webkit-scrollbar {
-            display: none; /* Hide scrollbar for sections */
-        }
-
-        /* Content Blocks within sections */
-        .mario-content-block {
-            max-width: 800px;
-            margin: 0 auto 30px auto;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background for readability */
-            border: 4px solid var(--text-dark);
-            box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
-        }
-
-        /* Header / Question Mark Block Styles */
-        .question-block {
-            background-color: var(--accent-yellow);
-            color: var(--brick-brown);
-            padding: 15px 25px;
-            display: inline-block;
-            border: 4px solid var(--brick-brown);
-            box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            top: 0;
-            animation: float 1s infinite alternate ease-in-out;
-            cursor: default; /* Not interactive, just for style */
-            font-size: 1.5em;
-            line-height: 1.2;
-        }
-        .question-block:hover {
-            transform: translateY(-5px); /* Subtle jump on hover */
-        }
-
-        /* Intro Section Specifics */
-        .intro-section .mario-content-block {
-            margin-top: 10%;
-            text-align: center;
-        }
-        .intro-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            display: block; /* Override inline-block for H1 */
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .mario-text-title {
-            font-size: 1.2em;
-            margin-bottom: 20px;
-        }
-        .mario-text-summary {
-            font-size: 1.1em;
-            line-height: 1.5;
-            margin-bottom: 30px;
-        }
-        .contact-info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px 30px;
-            font-size: 1.1em;
-        }
-        .contact-info .mario-link, .contact-info .mario-text {
-            color: var(--text-white);
-            background-color: var(--brick-brown);
-            padding: 8px 15px;
-            border: 2px solid var(--accent-yellow);
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.4);
-            white-space: nowrap; /* Prevent breaking links */
-        }
-
-        /* Experience Section */
-        #experience {
-            text-align: center;
-        }
-        .experience-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .job-entry {
-            text-align: left;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .job-entry h3 {
-            font-size: 1.2em;
-            margin-bottom: 5px;
-            color: var(--accent-yellow);
-        }
-        .job-entry .role {
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-        .job-entry .period {
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            color: var(--grout-white);
-        }
-        .job-entry ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .job-entry li {
-            position: relative;
-            padding-left: 30px; /* Space for coin */
-            margin-bottom: 8px;
-            line-height: 1.4;
-            font-size: 1em;
-        }
-        .coin-icon {
-            display: inline-block;
-            width: 18px; /* Size of the coin */
-            height: 18px;
-            background-color: var(--accent-yellow);
-            border-radius: 50%;
-            position: absolute;
-            left: 0;
-            top: 2px; /* Adjust vertical alignment */
-            animation: spin 1s infinite linear;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
-            border: 2px solid var(--text-dark);
-            cursor: default;
-        }
-        .coin-icon::after {
-            content: '$'; /* Simple text for coin */
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            color: var(--brick-brown);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            line-height: 1; /* For better vertical alignment */
-        }
-
-        /* Skills Section */
-        #skills {
-            text-align: center;
-        }
-        .skills-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .skill-tag {
-            background-color: var(--accent-yellow);
-            color: var(--brick-brown);
-            padding: 10px 20px;
-            border: 3px solid var(--brick-brown);
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.9em;
-            display: inline-block;
-            transition: transform 0.1s ease-out;
-            cursor: default;
-        }
-        .skill-tag:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Education Section */
-        #education {
-            text-align: center;
-        }
-        .education-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .education-entry {
-            text-align: left;
-            padding: 25px;
-        }
-        .education-entry h3 {
-            font-size: 1.2em;
-            margin-bottom: 5px;
-            color: var(--accent-yellow);
-        }
-        .education-entry .institution {
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-        .education-entry .period {
-            font-size: 0.9em;
-            color: var(--grout-white);
-        }
-
-        /* Contact Section */
-        .contact-section {
-            text-align: center;
-        }
-        .contact-section .mario-content-block {
-            margin-top: 10%;
-        }
-        .contact-section .mario-text {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-        }
-        .contact-section .contact-info {
-            flex-direction: column;
-            gap: 10px;
-        }
-        .contact-section .contact-info .mario-link,
-        .contact-section .contact-info .mario-text {
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            html, body {
-                font-size: 16px;
-            }
-            .mario-section {
-                padding: 30px 15px;
-            }
-            .question-block {
-                font-size: 1.2em;
-                padding: 10px 15px;
-            }
-            .intro-section h1 {
-                font-size: 1.8em;
-            }
-            .mario-text-title {
-                font-size: 1em;
-            }
-            .mario-text-summary {
-                font-size: 0.9em;
-            }
-            .contact-info {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .contact-info .mario-link, .contact-info .mario-text {
-                font-size: 0.9em;
-                padding: 6px 12px;
-            }
-            .experience-grid {
-                grid-template-columns: 1fr; /* Single column on small screens */
-            }
-            .job-entry {
-                padding: 15px;
-            }
-            .job-entry li {
-                font-size: 0.9em;
-            }
-            .skills-grid {
-                gap: 10px;
-            }
-            .skill-tag {
-                padding: 8px 15px;
-                font-size: 0.8em;
-            }
-            .education-entry {
-                padding: 15px;
-            }
-            .education-entry h3 {
-                font-size: 1em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .intro-section h1 {
-                font-size: 1.5em;
-            }
-            .question-block {
-                font-size: 1em;
-                padding: 8px 12px;
-            }
-            .contact-section .mario-content-block {
-                margin-top: 5%;
-            }
-            .coin-icon {
-                width: 16px;
-                height: 16px;
-            }
-            .coin-icon::after {
-                font-size: 10px;
-            }
-        }
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+      }
     </style>
+    <!-- Babel for in-browser JSX/TS transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React Import Map -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@^18.2.0/client",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/"
+  }
+}
+</script>
 </head>
-<body>
-    <div id="game-viewport">
-        <!-- Parallax Background Elements -->
-        <div class="parallax-layer layer-1">
-            <div class="cloud cloud-1"></div>
-            <div class="cloud cloud-2"></div>
-            <div class="cloud cloud-3"></div>
-            <div class="cloud cloud-4"></div>
-            <div class="cloud cloud-5"></div>
-        </div>
-        <div class="parallax-layer layer-2"></div>
+<body class="bg-gray-900 text-gray-200">
+    <div id="root"></div>
 
-        <div id="mario-world-container">
-            <!-- Intro Section (Home Castle) -->
-            <section id="intro" class="mario-section intro-section">
-                <div class="mario-content-block">
-                    <h1 class="question-block" id="name"></h1>
-                    <p class="mario-text-title" id="title"></p>
-                    <p class="mario-text-summary" id="summary"></p>
-                    <div class="contact-info" id="intro-contact">
-                        <!-- Contact links will be dynamically inserted here -->
+    <!-- 
+      Main Application Script
+      All React components and logic are contained within this single script tag.
+      Babel transpiles this code in the browser.
+    -->
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useCallback } from 'react';
+        import ReactDOM from 'react-dom/client';
+
+        // --- START OF CONSTANTS ---
+        // Game Constants
+        const GRID_SIZE = 10;
+        const INITIAL_SPEED = 300;
+        const SPEED_INCREMENT = 5;
+        const INITIAL_SNAKE_POSITION = [{ x: 5, y: 5 }];
+
+        // Icons
+        const ReactIcon = () => (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="-11.5 -10.23174 23 20.46348" className="w-6 h-6 text-cyan-400">
+            <circle cx="0" cy="0" r="2.05" fill="currentColor"></circle>
+            <g stroke="currentColor" strokeWidth="1" fill="none">
+              <ellipse rx="11" ry="4.2"></ellipse>
+              <ellipse rx="11" ry="4.2" transform="rotate(60)"></ellipse>
+              <ellipse rx="11" ry="4.2" transform="rotate(120)"></ellipse>
+            </g>
+          </svg>
+        );
+
+        const NodeIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-green-400">
+                <path fill="currentColor" d="M12.25.25a.75.75 0 0 0-1.5 0v7.3a2.25 2.25 0 0 0-3.32 2.003L5.3 19.537A2.25 2.25 0 0 0 7.425 22h9.15a2.25 2.25 0 0 0 2.126-2.462l-2.128-9.984a2.25 2.25 0 0 0-3.32-2.003V.25ZM9.722 11.23a.75.75 0 0 1 .84-1.28l3 1.75a.75.75 0 0 1-.84 1.28l-3-1.75ZM12 23.25a.75.75 0 0 0 .75-.75V20h-1.5v2.5a.75.75 0 0 0 .75.75Z"/>
+            </svg>
+        );
+
+        const CloudIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-blue-400">
+                <path fill="currentColor" d="M6.5 20q-2.275 0-3.888-1.575T1 14.575q0-1.95 1.175-3.575T5.25 9.15q.625-2.3 2.5-3.725T12 4q2.925 0 4.963 2.038T19 11q1.725.2 2.863 1.488T23 15.5q0 1.875-1.313 3.188T18.5 20z"/>
+            </svg>
+        );
+
+        const ProjectIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-purple-400">
+                <path fill="currentColor" d="M18.5 4.5c.43 0 .83.13 1.19.36l-8.6 8.63c-.15-.02-.3-.04-.44-.04c-.43 0-.83.13-1.19.36L18.5 4.5M4.14 11.2c-.23.36-.36.76-.36 1.19c0 .43.13.83.36 1.19L14.8 2.93c-.36-.23-.76-.36-1.19-.36c-.43 0-.83.13-1.19.36L4.14 11.2m15.5 1.61c.23-.36.36-.76.36-1.19s-.13-.83-.36-1.19l-8.31 8.28c.36.23.76.36 1.19.36s.83-.13 1.19-.36l5.93-5.9m-10.23 8.3c.36.23.76.36 1.19.36c.43 0 .83-.13 1.19-.36L2.93 9.2c-.23.36-.36.76-.36 1.19s.13.83.36 1.19l8.28 8.31Z"/>
+                <path fill="currentColor" d="m14.28 10.1l-4.1 4.1l-1.06-1.07l4.1-4.1l1.06 1.07M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8Z"/>
+            </svg>
+        );
+
+        const ExperienceIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-yellow-400">
+                <path fill="currentColor" d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8c0-2.34 1.02-4.49 2.65-6.04l1.43 1.43C6.88 8.61 6 10.21 6 12c0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.79-.88-3.39-2.28-4.61l1.43-1.43C20.98 7.51 22 9.66 22 12c0 4.41-3.59 8-8 8Z"/>
+            </svg>
+        );
+
+        // Resume Data
+        const RESUME_DATA = [
+          { id: 'react', title: 'React & TypeScript', category: 'Skill', description: 'Expert in building scalable, type-safe, and performant web applications using React and TypeScript. Proficient with hooks, context API, and modern state management.', icon: <ReactIcon />, },
+          { id: 'nodejs', title: 'Node.js & Backend', category: 'Skill', description: 'Skilled in developing robust and efficient backend services with Node.js and Express. Experienced in creating RESTful APIs and integrating with databases.', icon: <NodeIcon />, },
+          { id: 'cloud', title: 'Cloud & DevOps', category: 'Skill', description: 'Familiar with deploying and managing applications on cloud platforms like AWS and Google Cloud. Experience with serverless architecture and CI/CD pipelines.', icon: <CloudIcon />, },
+          { id: 'project-x', title: 'Project: AI-Powered Platform', category: 'Project', description: 'Led the frontend development of an AI-powered data analytics platform. Built a dynamic dashboard with React, D3.js, and Tailwind CSS for real-time visualization.', link: 'https://github.com/example/project-x', icon: <ProjectIcon />, },
+          { id: 'project-y', title: 'Project: E-Commerce Site', category: 'Project', description: 'Developed a full-stack e-commerce solution using a MERN stack. Implemented features like product search, shopping cart, and a secure checkout process with Stripe.', link: 'https://github.com/example/project-y', icon: <ProjectIcon />, },
+          { id: 'senior-engineer', title: 'Senior Frontend Engineer at TechCorp', category: 'Experience', description: '2020 - Present. Responsible for architecting and building user interfaces for flagship products, mentoring junior developers, and improving code quality and performance across the team.', icon: <ExperienceIcon />, },
+          { id: 'mid-level-engineer', title: 'Software Engineer at Innovate LLC', category: 'Experience', description: '2017 - 2020. Worked on a variety of client projects, developing custom web applications and mobile-first websites. Gained extensive experience in agile methodologies.', icon: <ExperienceIcon />, },
+        ];
+        // --- END OF CONSTANTS ---
+
+        // --- START OF COMPONENTS ---
+        
+        // Header.tsx
+        const Header = ({ score, onPauseClick, isPaused }) => {
+            const PauseIcon = () => (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6" />
+                </svg>
+            );
+
+            const PlayIcon = () => (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                </svg>
+            );
+
+            return (
+                <header className="w-full max-w-[500px] mb-4 text-center">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400">Resume Snake</h1>
+                    <p className="text-sm sm:text-base text-gray-400">Collect skills to learn about my experience.</p>
+                    <div className="mt-2 flex items-center justify-center gap-4">
+                        <div className="text-lg">
+                            Score: <span className="font-bold text-green-400">{score}</span>
+                        </div>
+                         <button
+                            onClick={onPauseClick}
+                            className="p-2 bg-gray-700/50 rounded-full text-gray-300 hover:bg-cyan-500/80 hover:text-white transition-colors"
+                            aria-label={isPaused ? "Resume Game" : "Pause Game"}
+                        >
+                            {isPaused ? <PlayIcon /> : <PauseIcon />}
+                        </button>
                     </div>
-                </div>
-            </section>
-
-            <!-- Experience Section -->
-            <section id="experience" class="mario-section">
-                <h2 class="question-block">Experience</h2>
-                <div class="experience-grid" id="experience-grid">
-                    <!-- Experience items will be dynamically inserted here -->
-                </div>
-            </section>
-
-            <!-- Skills Section -->
-            <section id="skills" class="mario-section">
-                <h2 class="question-block">Skills</h2>
-                <div class="skills-grid" id="skills-grid">
-                    <!-- Skills will be dynamically inserted here -->
-                </div>
-            </section>
-
-            <!-- Education Section -->
-            <section id="education" class="mario-section">
-                <h2 class="question-block">Education</h2>
-                <div class="education-grid" id="education-grid">
-                    <!-- Education will be dynamically inserted here -->
-                </div>
-            </section>
-
-            <!-- Contact Section (End of Level) -->
-            <section id="contact" class="mario-section contact-section">
-                <h2 class="question-block">Let's Connect!</h2>
-                <div class="mario-content-block">
-                    <p class="mario-text">Ready to level up your team?</p>
-                    <p class="mario-text">I'm always open to new adventures!</p>
-                    <div class="contact-info" id="final-contact">
-                        <!-- Contact links will be dynamically inserted here -->
-                    </div>
-                </div>
-            </section>
-        </div>
-    </div>
-
-    <script>
-        const resumeData = {
-            "education": [
-                {
-                    "degree": "Bachelor's Degree",
-                    "institution": "Kathmandu University (KU), Nepal",
-                    "period": "2014-2018"
-                }
-            ],
-            "experience": [
-                {
-                    "company": "NAO Co-investment GmbH, Berlin",
-                    "period": "06/2025 - current",
-                    "responsibilities": [
-                        "Responsible for performance marketing and built an automated UTM protocol tool that filters and sorts all URLs and tallies them with leads without UTM attributes, giving proper information about the source of the lead."
-                    ],
-                    "role": "Senior Growth Manager"
-                },
-                {
-                    "company": "",
-                    "period": "10/2024–05/2025",
-                    "responsibilities": [],
-                    "role": "Parental break"
-                },
-                {
-                    "company": "Tribe Growth GmbH, Berlin",
-                    "period": "07/2024 - 09/2024",
-                    "responsibilities": [
-                        "Built a reverse recruiting system, launched 5 GTM products."
-                    ],
-                    "role": "Growth & Operations Manager"
-                },
-                {
-                    "company": "Recrunova LLC, Texas (Remote)",
-                    "period": "10/2023 – 06/2024",
-                    "responsibilities": [
-                        "Built entire website from scratch, drove 50K+ monthly visitors, and generated 50+ monthly leads organically."
-                    ],
-                    "role": "Sr. Marketing Specialist"
-                },
-                {
-                    "company": "Pocket Studio, Nepal",
-                    "period": "07/2021 – 02/2023",
-                    "responsibilities": [
-                        "Organized over 12 different conferences and events for C-level executives, saved $6M+ and optimized €100K+ monthly ad budget."
-                    ],
-                    "role": "Performance Marketing Manager"
-                },
-                {
-                    "company": "88 Collective, Nepal",
-                    "period": "06/2019 – 11/2020",
-                    "responsibilities": [
-                        "Organized stalls for over 70 expos in India and Nepal, managed €100K+ in paid ads, and improved visibility through SEO."
-                    ],
-                    "role": "HoD, Consultation"
-                },
-                {
-                    "company": "VMAG, Nepal",
-                    "period": "08/2018 – 06/2019",
-                    "responsibilities": [
-                        "Directed and produced Nepal's most-watched comedy show, boosting brand awareness significantly."
-                    ],
-                    "role": "Assistant Marketing Manager"
-                },
-                {
-                    "company": "Urban Girl, Nepal",
-                    "period": "04/2017 – 05/2018",
-                    "responsibilities": [
-                        "Scaled e-commerce sales by 16X, added $600K+ annual revenue through distribution expansion, implemented CRM marketing system."
-                    ],
-                    "role": "Business Development Manager"
-                },
-                {
-                    "company": "EBCG, Slovakia",
-                    "period": "02/2016 – 04/2017",
-                    "responsibilities": [
-                        "Closed conference and event partnerships with C-level executives across Europe and US, enhancing onboarding success."
-                    ],
-                    "role": "Event Onboarding Manager"
-                },
-                {
-                    "company": "Nepal Share, Nepal",
-                    "period": "04/2015 – 10/2015",
-                    "responsibilities": [
-                        "Led the reconstruction of houses in Remote Nepal after 2015 earthquake"
-                    ],
-                    "role": "Assistant Program Coordinator"
-                },
-                {
-                    "company": "Rasuna Engineering, Nepal",
-                    "period": "03/2010 – 04/2015",
-                    "responsibilities": [
-                        "Delivered successful BTL marketing campaigns and assisted in closing five large infrastructure contracts."
-                    ],
-                    "role": "Marketing Executive"
-                }
-            ],
-            "name": "Prajjwol Bhattarai (Prajj)",
-            "skills": [
-                "Google Ads",
-                "Meta Ads",
-                "LinkedIn Ads",
-                "Programmatic Advertising",
-                "CAC optimization",
-                "ROAS-focused strategy",
-                "Make (Integromat)",
-                "HubSpot",
-                "Zoho CRM",
-                "Webhooks",
-                "Automated Workflows",
-                "Custom AI tools for campaign execution",
-                "UTM Tracking",
-                "Scraping",
-                "Creative Generation",
-                "GA4",
-                "Zoho Analytics",
-                "Tableau",
-                "A/B Testing",
-                "Multivariate Analysis",
-                "Adobe Creative Suite (Photoshop)",
-                "Adobe Illustrator",
-                "Adobe Premiere Pro",
-                "Canva",
-                "Figma",
-                "Media Production",
-                "English",
-                "Hindi",
-                "Nepali",
-                "Urdu",
-                "Basic German"
-            ],
-            "summary": "Marketing automation & performance marketing expert with 14+ years of experience leading growth across fintech, e-commerce, and recruitment. I specialize in customer-focused marketing workflows and data analytics. Managed €100K+ ad spends, dropped CPL by 70%, launched market-disrupting platforms, and scaled businesses from scratch.",
-            "title": "Marketing Specialist | Driving Growth & Performance",
-            "contact": {
-                "email": "prajjwolbhattarai@gmail.com",
-                "linkedin": "linkedin.com/in/prajjwolbhattarai",
-                "phone": "+4917629858945",
-                "website": "http://prajjwolbhattarai.com.np"
-            }
+                </header>
+            );
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Populate Intro Section
-            document.getElementById('name').textContent = resumeData.name;
-            document.getElementById('title').textContent = resumeData.title;
-            document.getElementById('summary').textContent = resumeData.summary;
+        // GameControls.tsx
+        const GameControls = ({ onDirectionChange }) => {
+            const ControlButton = ({ onClick, children, className = '' }) => (
+                <button 
+                    onClick={onClick}
+                    className={`bg-gray-700 hover:bg-cyan-500/80 active:bg-cyan-500 rounded-lg w-16 h-16 flex items-center justify-center text-white font-bold text-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 ${className}`}
+                >
+                    {children}
+                </button>
+            );
 
-            const populateContactInfo = (targetElement, contactData) => {
-                targetElement.innerHTML = ''; // Clear existing content
-                if (contactData.email) {
-                    targetElement.innerHTML += `<a href="mailto:${contactData.email}" class="mario-link">${contactData.email}</a>`;
-                }
-                if (contactData.linkedin) {
-                    targetElement.innerHTML += `<a href="https://${contactData.linkedin}" target="_blank" class="mario-link">${contactData.linkedin}</a>`;
-                }
-                if (contactData.website) {
-                    targetElement.innerHTML += `<a href="${contactData.website}" target="_blank" class="mario-link">${contactData.website}</a>`;
-                }
-                if (contactData.phone) {
-                    targetElement.innerHTML += `<span class="mario-text">${contactData.phone}</span>`;
-                }
+            return (
+                <div className="mt-6 grid grid-cols-3 grid-rows-3 gap-2 w-52 sm:hidden">
+                    <div className="col-start-2 row-start-1">
+                        <ControlButton onClick={() => onDirectionChange('UP')}>▲</ControlButton>
+                    </div>
+                    <div className="col-start-1 row-start-2">
+                        <ControlButton onClick={() => onDirectionChange('LEFT')}>◄</ControlButton>
+                    </div>
+                    <div className="col-start-3 row-start-2">
+                        <ControlButton onClick={() => onDirectionChange('RIGHT')}>►</ControlButton>
+                    </div>
+                    <div className="col-start-2 row-start-3">
+                        <ControlButton onClick={() => onDirectionChange('DOWN')}>▼</ControlButton>
+                    </div>
+                </div>
+            );
+        };
+
+        // SocialLink (common component)
+        const SocialLink = ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200">
+                {children}
+            </a>
+        );
+
+        // GameOverScreen.tsx
+        const GameOverScreen = ({ score, onRestart }) => {
+          return (
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-20 text-center p-4">
+              <h2 className="text-5xl font-bold text-red-500 mb-2">Game Over</h2>
+              <p className="text-xl text-gray-300 mb-6">You discovered <span className="text-cyan-400 font-bold">{score}</span> of my skills!</p>
+              
+              <div className="flex flex-col w-full max-w-xs gap-4">
+                <button
+                  onClick={onRestart}
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+                >
+                  Play Again
+                </button>
+
+                <a
+                  href="#"
+                  onClick={(e) => {
+                      e.preventDefault();
+                      alert("In a real scenario, a resume file would be downloaded here.");
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 flex items-center justify-center"
+                >
+                  Download Resume
+                </a>
+              </div>
+
+              <div className="border-t border-gray-700 w-full max-w-xs my-6"></div>
+
+              <p className="text-lg font-semibold mb-2">Connect with me:</p>
+              <div className="flex items-center space-x-4">
+                <SocialLink href="https://github.com/example">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clipRule="evenodd" /></svg>
+                </SocialLink>
+                <SocialLink href="https://linkedin.com/in/example">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                </SocialLink>
+              </div>
+            </div>
+          );
+        };
+        
+        // PauseScreen.tsx
+        const PauseScreen = ({ onResume, onRestart }) => {
+          return (
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-lg flex flex-col items-center justify-center z-20 text-center p-4">
+              <h2 className="text-5xl font-bold text-yellow-400 mb-6">Paused</h2>
+              
+              <div className="flex flex-col w-full max-w-xs gap-4">
+                <button
+                  onClick={onResume}
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+                >
+                  Resume
+                </button>
+                <button
+                  onClick={onRestart}
+                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                >
+                  Restart Game
+                </button>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                      e.preventDefault();
+                      alert("In a real scenario, a resume file would be downloaded here.");
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 flex items-center justify-center"
+                >
+                  Download Resume
+                </a>
+              </div>
+
+              <div className="border-t border-gray-700 w-full max-w-xs my-6"></div>
+
+              <p className="text-lg font-semibold mb-2">Connect with me:</p>
+              <div className="flex items-center space-x-4">
+                <SocialLink href="https://github.com/example">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clipRule="evenodd" /></svg>
+                </SocialLink>
+                <SocialLink href="https://linkedin.com/in/example">
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                </SocialLink>
+              </div>
+            </div>
+          );
+        };
+        
+        // ResumeModal.tsx
+        const ResumeModal = ({ item, onClose }) => {
+          const categoryColor = () => {
+            switch (item.category) {
+              case 'Skill': return 'text-cyan-400 border-cyan-400';
+              case 'Project': return 'text-purple-400 border-purple-400';
+              case 'Experience': return 'text-yellow-400 border-yellow-400';
+            }
+          };
+
+          return (
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-30 p-4">
+              <div className="bg-gray-800/80 border border-gray-600 rounded-lg p-6 max-w-md w-full shadow-2xl shadow-cyan-500/20">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{item.icon}</span>
+                    <h2 className="text-2xl font-bold text-white">{item.title}</h2>
+                  </div>
+                  <span className={`text-xs font-bold uppercase px-2 py-1 border rounded-full ${categoryColor()}`}>
+                    {item.category}
+                  </span>
+                </div>
+                <p className="text-gray-300 mb-6">{item.description}</p>
+                
+                <div className="flex justify-between items-center">
+                    {item.link ? (
+                        <a 
+                            href={item.link} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-cyan-400 hover:text-cyan-300 transition-colors duration-200 font-semibold"
+                        >
+                            View Project &rarr;
+                        </a>
+                    ) : <div />}
+                    <button
+                        onClick={onClose}
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
+                    >
+                        Continue
+                    </button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // GameBoard.tsx
+        const GameBoard = ({ snake, food, gridSize, direction }) => {
+          const snakeSegmentColor = (itemId) => {
+            if (!itemId) return 'bg-green-400';
+            const item = RESUME_DATA.find(i => i.id === itemId);
+            if (!item) return 'bg-green-400';
+            switch (item.category) {
+              case 'Skill': return 'bg-cyan-400';
+              case 'Project': return 'bg-purple-400';
+              case 'Experience': return 'bg-yellow-400';
+              default: return 'bg-green-400';
+            }
+          };
+
+          const gridCells = Array.from({ length: gridSize * gridSize });
+
+          return (
+            <div 
+              className="grid bg-black/30 backdrop-blur-sm border border-cyan-500/30 rounded-lg overflow-hidden" 
+              style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+            >
+              {gridCells.map((_, index) => (
+                <div key={index} className="aspect-square bg-gray-800/20 border-r border-b border-gray-500/10"></div>
+              ))}
+
+              {/* Render Snake */}
+              {snake.map((segment, index) => (
+                <div
+                  key={index}
+                  className={`absolute rounded-sm transform transition-all duration-100 ease-linear ${index === 0 ? 'z-10 flex justify-center items-center' : ''}`}
+                  style={{
+                    width: `${100 / gridSize}%`,
+                    height: `${100 / gridSize}%`,
+                    top: `${segment.y * (100 / gridSize)}%`,
+                    left: `${segment.x * (100 / gridSize)}%`,
+                  }}
+                >
+                  {index === 0 ? (
+                    <div
+                      className="bg-green-400 rounded-md shadow-lg shadow-green-400/50"
+                      style={{
+                        width: (direction === 'LEFT' || direction === 'RIGHT') ? '100%' : '80%',
+                        height: (direction === 'UP' || direction === 'DOWN') ? '100%' : '80%',
+                        transition: 'width 100ms ease-in-out, height 100ms ease-in-out'
+                      }}
+                    />
+                  ) : (
+                    <div className={`w-full h-full ${snakeSegmentColor(segment.resumeItemId)} rounded-full`}></div>
+                  )}
+                </div>
+              ))}
+
+              {/* Render Food */}
+              <div
+                className="absolute transform transition-all duration-200"
+                style={{
+                  width: `${100 / gridSize}%`,
+                  height: `${100 / gridSize}%`,
+                  top: `${food.y * (100 / gridSize)}%`,
+                  left: `${food.x * (100 / gridSize)}%`,
+                }}
+              >
+                <div className="w-full h-full flex items-center justify-center animate-pulse">
+                    {food.resumeItem.icon}
+                </div>
+              </div>
+            </div>
+          );
+        };
+        // --- END OF COMPONENTS ---
+
+        // --- START OF MAIN APP LOGIC ---
+        const App = () => {
+          const [snake, setSnake] = useState(INITIAL_SNAKE_POSITION);
+          const [food, setFood] = useState(() => generateFood(INITIAL_SNAKE_POSITION));
+          const [direction, setDirection] = useState('RIGHT');
+          const [speed, setSpeed] = useState(INITIAL_SPEED);
+          const [isGameOver, setGameOver] = useState(false);
+          const [activeResumeItem, setActiveResumeItem] = useState(null);
+          const [score, setScore] = useState(0);
+          const [isPaused, setPaused] = useState(false);
+
+          function generateFood(currentSnake) {
+            while (true) {
+              const x = Math.floor(Math.random() * GRID_SIZE);
+              const y = Math.floor(Math.random() * GRID_SIZE);
+              const isOccupied = currentSnake.some(segment => segment.x === x && segment.y === y);
+              if (!isOccupied) {
+                const availableItems = RESUME_DATA.filter(item => 
+                  !currentSnake.some(segment => segment.resumeItemId === item.id)
+                );
+                const resumeItem = availableItems.length > 0 
+                  ? availableItems[Math.floor(Math.random() * availableItems.length)]
+                  : RESUME_DATA[Math.floor(Math.random() * RESUME_DATA.length)];
+                return { x, y, resumeItem };
+              }
+            }
+          }
+
+          const resetGame = useCallback(() => {
+            setSnake(INITIAL_SNAKE_POSITION);
+            setFood(() => generateFood(INITIAL_SNAKE_POSITION));
+            setDirection('RIGHT');
+            setSpeed(INITIAL_SPEED);
+            setGameOver(false);
+            setActiveResumeItem(null);
+            setScore(0);
+            setPaused(false);
+          }, []);
+          
+          const togglePause = () => {
+            if (isGameOver) return;
+            setPaused(prev => !prev);
+          };
+
+          const handleDirectionChange = (newDirection) => {
+            const isOpposite = (dir1, dir2) => {
+                return (dir1 === 'UP' && dir2 === 'DOWN') ||
+                       (dir1 === 'DOWN' && dir2 === 'UP') ||
+                       (dir1 === 'LEFT' && dir2 === 'RIGHT') ||
+                       (dir1 === 'RIGHT' && dir2 === 'LEFT');
             };
 
-            populateContactInfo(document.getElementById('intro-contact'), resumeData.contact);
-            populateContactInfo(document.getElementById('final-contact'), resumeData.contact);
+            if (snake.length > 1 && isOpposite(direction, newDirection)) {
+                return;
+            }
+            setDirection(newDirection);
+          };
 
-            // Populate Experience Section
-            const experienceGrid = document.getElementById('experience-grid');
-            resumeData.experience.forEach(job => {
-                const jobBlock = document.createElement('div');
-                jobBlock.classList.add('mario-content-block', 'job-entry');
+          const gameLoop = useCallback(() => {
+            if (isGameOver || activeResumeItem || isPaused) return;
 
-                jobBlock.innerHTML = `
-                    <h3>${job.company || 'Career Break'}</h3>
-                    <p class="role">${job.role}</p>
-                    <p class="period">${job.period}</p>
-                    ${job.responsibilities && job.responsibilities.length > 0 ? '<ul>' + job.responsibilities.map(resp => `<li><span class="coin-icon"></span>${resp}</li>`).join('') + '</ul>' : '<p class="mario-text">Taking a well-deserved break!</p>'}
-                `;
-                experienceGrid.appendChild(jobBlock);
+            setSnake(prevSnake => {
+              const newSnake = [...prevSnake];
+              const head = { ...newSnake[0] };
+
+              switch (direction) {
+                case 'UP': head.y -= 1; break;
+                case 'DOWN': head.y += 1; break;
+                case 'LEFT': head.x -= 1; break;
+                case 'RIGHT': head.x += 1; break;
+              }
+
+              // Wall wrapping
+              if (head.x < 0) head.x = GRID_SIZE - 1;
+              else if (head.x >= GRID_SIZE) head.x = 0;
+              if (head.y < 0) head.y = GRID_SIZE - 1;
+              else if (head.y >= GRID_SIZE) head.y = 0;
+
+              // Self collision
+              for (let i = 1; i < newSnake.length; i++) {
+                if (head.x === newSnake[i].x && head.y === newSnake[i].y) {
+                  setGameOver(true);
+                  setSpeed(null);
+                  return prevSnake;
+                }
+              }
+
+              newSnake.unshift(head);
+
+              // Food collision
+              if (head.x === food.x && head.y === food.y) {
+                setScore(prev => prev + 1);
+                head.resumeItemId = food.resumeItem.id;
+                setActiveResumeItem(food.resumeItem);
+                setFood(generateFood(newSnake));
+                setSpeed(prevSpeed => prevSpeed ? Math.max(50, prevSpeed - SPEED_INCREMENT) : 50);
+              } else {
+                newSnake.pop();
+              }
+
+              return newSnake;
             });
+          }, [direction, food, isGameOver, activeResumeItem, isPaused]);
 
-            // Populate Skills Section
-            const skillsGrid = document.getElementById('skills-grid');
-            resumeData.skills.forEach(skill => {
-                const skillTag = document.createElement('span');
-                skillTag.classList.add('skill-tag');
-                skillTag.textContent = skill;
-                skillsGrid.appendChild(skillTag);
-            });
+          useEffect(() => {
+            const handleKeyDown = (e) => {
+              if (activeResumeItem) return;
 
-            // Populate Education Section
-            const educationGrid = document.getElementById('education-grid');
-            resumeData.education.forEach(edu => {
-                const educationEntry = document.createElement('div');
-                educationEntry.classList.add('mario-content-block', 'education-entry');
-                educationEntry.innerHTML = `
-                    <h3>${edu.degree}</h3>
-                    <p class="institution">${edu.institution}</p>
-                    <p class="period">${edu.period}</p>
-                `;
-                educationGrid.appendChild(educationEntry);
-            });
+              switch (e.key) {
+                case 'ArrowUp': case 'w': case 'W': handleDirectionChange('UP'); break;
+                case 'ArrowDown': case 's': case 'S': handleDirectionChange('DOWN'); break;
+                case 'ArrowLeft': case 'a': case 'A': handleDirectionChange('LEFT'); break;
+                case 'ArrowRight': case 'd': case 'D': handleDirectionChange('RIGHT'); break;
+                case 'p': case 'P': case 'Escape':
+                    e.preventDefault();
+                    togglePause();
+                    break;
+              }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+          }, [direction, activeResumeItem, isPaused]);
 
-            // Parallax Effect
-            const marioWorldContainer = document.getElementById('mario-world-container');
-            const layer1 = document.querySelector('.layer-1'); // Clouds
-            const layer2 = document.querySelector('.layer-2'); // Ground
+          useEffect(() => {
+            if (speed !== null && !isGameOver && !activeResumeItem && !isPaused) {
+              const interval = setInterval(gameLoop, speed);
+              return () => clearInterval(interval);
+            }
+          }, [speed, isGameOver, activeResumeItem, gameLoop, isPaused]);
 
-            marioWorldContainer.addEventListener('scroll', () => {
-                const scrollPos = marioWorldContainer.scrollLeft;
-                layer1.style.transform = `translateX(-${scrollPos * 0.1}px)`; // Slower for clouds
-                layer2.style.transform = `translateX(-${scrollPos * 0.3}px)`; // Faster for ground
-            });
-        });
+          const closeModal = () => {
+            setActiveResumeItem(null);
+          };
+
+          return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-4">
+              <Header score={score} onPauseClick={togglePause} isPaused={isPaused} />
+              <div className="relative w-full max-w-[500px] aspect-square shadow-2xl shadow-cyan-500/20 rounded-lg">
+                {isGameOver && <GameOverScreen score={score} onRestart={resetGame} />}
+                {isPaused && !isGameOver && <PauseScreen onResume={togglePause} onRestart={resetGame} />}
+                {activeResumeItem && <ResumeModal item={activeResumeItem} onClose={closeModal} />}
+                <GameBoard snake={snake} food={food} gridSize={GRID_SIZE} direction={direction} />
+              </div>
+              <GameControls onDirectionChange={handleDirectionChange} />
+            </div>
+          );
+        };
+        // --- END OF MAIN APP LOGIC ---
+
+        // --- RENDER THE APP ---
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(
+            <App />
+        );
+
     </script>
 </body>
 </html>
